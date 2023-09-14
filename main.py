@@ -12,10 +12,10 @@ event_times_table = np.array(
     [
         [0.0, 1.2, 3.0, 4.2, 1.5],  # SE
         [1.0, 2.5, 4.5, 5.2, 3.0],  # EI
-        [3.7, 4.0, 5.75, 6.2, 4.5],
+        [3.7, 4.0, 5.75, 6.2, 4.5],  # IR
     ],
     dtype=np.float32,
-)  # IR
+)
 
 event_table_units = [6, 2, 5, 8, 4]
 
@@ -35,6 +35,7 @@ incidence_matrix = np.array(
 )
 num_individuals = 300
 num_states, num_events = incidence_matrix.shape
+
 initial_conditions = np.concatenate(
     [np.ones([1, num_individuals]), np.zeros([num_states - 1, num_individuals])],
     dtype=np.float32,
@@ -60,10 +61,9 @@ spatial_conn = tf.random.uniform(
     dtype=tf.float32,
     seed=198,
 )
-
 covar_mats = dict(adj_mats=adj_mats, spatial_conn=spatial_conn)
 
-# parameters
+# define model parameters
 parms = {
     "alpha": 1 / 4,
     "gamma": 1 / 5,
@@ -71,11 +71,11 @@ parms = {
     "beta2": 0.8,
 }
 
-# user definedtransition rate functon
+# user defined transition rate functon
 transition_rate_fn = tr.make_compute_transition_rates(covar_mats, parms)
 
 # Instantiate the class
-hospital_model = ContinuousTimeModel(
+cts_model = ContinuousTimeModel(
     initial_conditions=initial_conditions,
     num_individuals=num_individuals,
     global_ids=tf.range(num_individuals),
@@ -85,4 +85,4 @@ hospital_model = ContinuousTimeModel(
 )
 
 # compute log prob
-hospital_model.log_prob(event_list)
+cts_model.log_prob(event_list)
